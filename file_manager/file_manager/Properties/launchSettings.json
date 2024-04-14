@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "file_manager": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\kacpe\\IdeaProjects"
+    }
+  }
+}
