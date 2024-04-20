@@ -1,0 +1,41 @@
+﻿<Window x:Class="WPF_Regex.CreateFileForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Regex"
+        mc:Ignorable="d"
+        Title="CreateFileForm" Height="422" Width="304">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Content="Name:" Margin="10"/>
+        <TextBox Grid.Row="0" Name="NameTextBox" Margin="100,10,10,10" Text="{Binding FileName, Mode=TwoWay}"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="55,2,55,18">
+            <RadioButton Content="File" Margin="0,0,20,0" Name="RadioFile" Checked="RadioFile_Checked"/>
+            <RadioButton Content="Directory" Name="RadioDirectory" Checked="RadioDirectory_Checked"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="55,10,10,10">
+            <CheckBox Content="ReadOnly" Name="CheckboxReadOnly" IsChecked="{Binding IsReadOnlyChecked, Mode=TwoWay}" Checked="CheckboxReadOnly_Checked"/>
+            <CheckBox Content="Archive" Name="CheckboxArchive" IsChecked="{Binding IsArchiveChecked, Mode=TwoWay}" Checked="CheckboxArchive_Checked"/>
+            <CheckBox Content="Hidden" Name="CheckboxHidden" IsChecked="{Binding IsHiddenChecked, Mode=TwoWay}" Checked="CheckboxHidden_Checked"/>
+            <CheckBox Content="System" Name="CheckboxSystem" IsChecked="{Binding IsSystemChecked, Mode=TwoWay}" Checked="CheckboxSystem_Checked"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="55,10,10,10">
+            <Button Content="OK" Width="75" Margin="0,0,10,0" Click="OK_Click"/>
+            <Button Content="Cancel" Width="75" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

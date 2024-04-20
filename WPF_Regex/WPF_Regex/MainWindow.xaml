@@ -1,0 +1,38 @@
+﻿<Window x:Class="WPF_Regex.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Regex"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="563" Width="936"
+        Background="Blue">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+
+        <ToolBar Grid.Row="0" Margin="0,10,0,0" HorizontalAlignment="Stretch">
+            <Menu Width="54" Height="35">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open" Click="Open_Click"/>
+                    <MenuItem Header="Exit" Click="Exit_Click"/>
+                </MenuItem>
+            </Menu>
+        </ToolBar>
+
+        <TreeView Name="treeView" Grid.Row="1" Width="Auto" Margin="0,0,468,10" Background="AliceBlue" SelectedItemChanged="TreeView_SelectedItemChanged"/>
+
+        <ScrollViewer Grid.Row="1" Margin="473,0,0,10" Background="LightBlue">
+            <TextBlock x:Name="fileBodyTextBlock" TextWrapping="Wrap"/>
+        </ScrollViewer>
+
+        <StatusBar Grid.Row="2" Background="LightGray">
+            <TextBlock x:Name="statusBarTextBlock" Text="Ready" />
+        </StatusBar>
+    </Grid>
+
+</Window>
