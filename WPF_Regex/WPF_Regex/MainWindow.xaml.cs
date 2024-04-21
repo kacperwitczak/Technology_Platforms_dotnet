@@ -28,6 +28,9 @@ namespace WPF_Regex
             InitializeComponent();
         }
 
+        private string root_path = "";
+
+        #region FileFunctions
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Application.Current.Shutdown();
@@ -46,19 +49,44 @@ namespace WPF_Regex
             {
                 statusBarTextBlock.Text = "Opening...";
                 var directory = inputDialog.SelectedPath;
+                root_path = directory;
                 DisplayTreeView(directory);
                 statusBarTextBlock.Text = "Ready";
             }
         }
 
+        #endregion FileFunctions
+
+        #region TreeLogic
         private void DisplayTreeView(string path)
         {
             treeView.Items.Clear();
-            var root = BuildTreeView(path);
+            var root = BuildTreeView(null, path);
             treeView.Items.Add(root);
         }
 
-        private TreeViewItem BuildTreeView(string path)
+        private TreeViewItem BuildTreeView(TreeViewItem? parent, string path)
+        {
+            TreeViewItem root = CreateDirectoryTreeViewItem(parent, path);
+            foreach (var directory in Directory.GetDirectories(path))
+            {
+                var dir = BuildTreeView(root, directory);
+                root.Items.Add(dir);
+            }
+
+            foreach (var file in Directory.GetFiles(path))
+            {
+                TreeViewItem item = CreateFileTreeViewItem(root, file);
+                root.Items.Add(item);
+            }
+
+            return root;
+        }
+        #endregion
+
+        #region CreateTreeView
+
+        private TreeViewItem CreateDirectoryTreeViewItem(TreeViewItem? parent, string path)
         {
             FileInfo rootInfo = new FileInfo(path);
             var root = new TreeViewItem()
@@ -67,90 +95,125 @@ namespace WPF_Regex
                 Tag = rootInfo.FullName
             };
 
-            var dirMenu = CreateDirectoryContextMenu(path);
+            var dirMenu = CreateDirectoryContextMenu(parent, root, path);
             root.ContextMenu = dirMenu;
-
-            foreach (var directory in Directory.GetDirectories(path))
-            {
-                var dir = BuildTreeView(directory);
-                
-                root.Items.Add(dir);
-            }
-
-            foreach (var file in Directory.GetFiles(path))
-            {
-                FileInfo fileInfo = new FileInfo(file);
-                var item = new TreeViewItem()
-                {
-                    Header = fileInfo.Name,
-                    Tag = fileInfo.FullName
-                };
-                var fileMenu = CreateFileContextMenu(file);
-                item.ContextMenu = fileMenu;
-                root.Items.Add(item);
-            }
 
             return root;
         }
 
-        private ContextMenu CreateDirectoryContextMenu(string path)
+        private TreeViewItem CreateFileTreeViewItem(TreeViewItem? parent, string file)
+        {
+            FileInfo fileInfo = new FileInfo(file);
+            var root = new TreeViewItem()
+            {
+                Header = fileInfo.Name,
+                Tag = fileInfo.FullName
+            };
+            var fileMenu = CreateFileContextMenu(parent, root, file);
+            root.ContextMenu = fileMenu;
+
+            return root;
+        }
+        #endregion CreateTreeView
+
+        #region CreateContextMenu
+
+        private ContextMenu CreateDirectoryContextMenu(TreeViewItem? parent,TreeViewItem current, string path)
         {
             ContextMenu menu = new ContextMenu();
 
+            menu.Items.Add(CreateCreateMenuItem(current, path));
+            menu.Items.Add(CreateDeleteMenuItem(parent, current, path));
+
+            return menu;
+        }
+
+        private ContextMenu CreateFileContextMenu(TreeViewItem? parent, TreeViewItem current, string path)
+        {
+            ContextMenu menu = new ContextMenu();
+
+            menu.Items.Add(CreateOpenMenuItem(path));
+            menu.Items.Add(CreateDeleteMenuItem(parent, current, path));
+
+            return menu;
+        }
+        #endregion CreateContextMenu
+
+        #region CreateMenuItem
+        private MenuItem CreateCreateMenuItem(TreeViewItem current, string path)
+        {
             MenuItem createItem = new MenuItem()
             {
                 Header = "Create"
             };
 
-            createItem.Click += (sender, e) => CreateNewFile(path);
+            createItem.Click += (sender, e) =>
+            {
+                var inputDialog = new CreateFileForm();
+                inputDialog.ShowDialog();
 
-            menu.Items.Add(CreateDeleteMenuItem(path));
-            menu.Items.Add(createItem);
+                if (inputDialog.DialogResult)
+                {
+                    string fileName = inputDialog.FileName;
+                    if (IsNameValid(fileName))
+                    {
+                        string path_to_new_file = Path.Combine(path, fileName);
+                        if (inputDialog.IsFileSelected)
+                        {
+                            File.Create(path_to_new_file);
+                            current.Items.Add(CreateFileTreeViewItem(current, path_to_new_file));
+                        }
+                        else if (inputDialog.IsDirectorySelected)
+                        {
+                            Directory.CreateDirectory(path_to_new_file);
+                            current.Items.Add(CreateDirectoryTreeViewItem(current, path_to_new_file));
+                        }
 
-            return menu;
+                        FileInfo fileInfo = new FileInfo(path_to_new_file);
+                        fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.ReadOnly) : fileInfo.Attributes;
+                        fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.Hidden) : fileInfo.Attributes;
+                        fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.Archive) : fileInfo.Attributes;
+                        fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.System) : fileInfo.Attributes;
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("File name should contain up to 8 characters and .txt .php or .html extension!");
+                    }
+                }
+            };
+            return createItem;
         }
 
-        private ContextMenu CreateFileContextMenu(string path)
+        private MenuItem CreateOpenMenuItem(string path)
         {
-            ContextMenu menu = new ContextMenu();
-
             MenuItem openItem = new MenuItem()
             {
                 Header = "Open",
                 Tag = path
             };
-            openItem.Click += DisplayFile;
 
-            menu.Items.Add(CreateDeleteMenuItem(path));
-            menu.Items.Add(openItem);
-
-            return menu;
+            openItem.Click += (sender, e) =>
+            {
+                string fileBody = File.ReadAllText(path);
+                fileBodyTextBlock.Text = fileBody;
+            };
+            return openItem;
         }
 
-        private MenuItem CreateDeleteMenuItem(string path)
+        private MenuItem CreateDeleteMenuItem(TreeViewItem? parent, TreeViewItem current, string path)
         {
             MenuItem deleteItem = new MenuItem()
             {
                 Header = "Delete",
                 Tag = path
             };
-            deleteItem.Click += Delete_Click;
 
-            return deleteItem;
-        }
-
-        private void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            MenuItem? deleteItem = sender as MenuItem;
-            if (deleteItem != null)
+            deleteItem.Click += (semder, e ) => 
             {
-                string path = deleteItem.Tag.ToString();
                 FileAttributes attr = File.GetAttributes(path);
-                if ((attr & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-                {
-                    attr = attr & ~FileAttributes.ReadOnly;
-                    File.SetAttributes(path, attr);
-                }
+                attr = attr & ~FileAttributes.ReadOnly;
+                File.SetAttributes(path, attr);
 
                 if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
@@ -161,24 +224,20 @@ namespace WPF_Regex
                     File.Delete(path);
                 }
 
-                TreeViewItem selected = treeView.SelectedItem as TreeViewItem;
-                if (selected != null && selected.Parent is ItemsControl parent)
+                if (parent != null)
                 {
-                    parent.Items.Remove(selected);
+                    parent.Items.Remove(current);
                 }
-            }
-        }
+                else
+                {
+                    this.root_path = "";
+                    treeView.Items.Clear();
+                }
+            };
 
-        private void DisplayFile(object sender, RoutedEventArgs e)
-        {
-            MenuItem openItem = sender as MenuItem;
-            if (openItem != null)
-            {
-                string fileBody = File.ReadAllText(openItem.Tag.ToString());
-
-                fileBodyTextBlock.Text = fileBody;
-            }
+            return deleteItem;
         }
+        #endregion CreateMenuItem
 
         private void TreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
@@ -191,40 +250,6 @@ namespace WPF_Regex
 
                 statusBarTextBlock.Text = attr;
             }
-        }
-
-        private void CreateNewFile(string directory)
-        {
-            var inputDialog = new CreateFileForm();
-            inputDialog.ShowDialog();
-
-            if (inputDialog.DialogResult)
-            {
-                string fileName = inputDialog.FileName;
-                if (IsNameValid(fileName))
-                {
-                    string path = Path.Combine(directory, fileName);
-                    if (inputDialog.IsFileSelected)
-                    {
-                        File.Create(path);
-                    } else if(inputDialog.IsDirectorySelected)
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-
-                    FileInfo fileInfo = new FileInfo(path);
-                    fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.ReadOnly) : fileInfo.Attributes;
-                    fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.Hidden) : fileInfo.Attributes;
-                    fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.Archive) : fileInfo.Attributes;
-                    fileInfo.Attributes = inputDialog.IsReadOnlyChecked ? (fileInfo.Attributes | FileAttributes.System) : fileInfo.Attributes;
-                    DisplayTreeView(directory);
-                }
-                else
-                {
-                    MessageBox.Show("File name should contain up to 8 characters and .txt .php or .html extension!");
-                }
-            }
-
         }
 
         private bool IsNameValid(string filename)

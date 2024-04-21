@@ -12,11 +12,11 @@ namespace WPF_Regex
 
         private void OK_Click(object sender, RoutedEventArgs e)
         {
-            if (_fileName?.Length == 0)
+            if (string.IsNullOrEmpty(FileName))
             {
                 System.Windows.MessageBox.Show("Name cant be blanc!");
                 this.DialogResult = false;
-            } else if (IsDirectorySelected == false && IsFileSelected == false)
+            } else if (!IsDirectorySelected && !IsFileSelected)
             {
                 System.Windows.MessageBox.Show("Fie type can't be empty!");
                 this.DialogResult = false;
