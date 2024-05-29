@@ -8,7 +8,7 @@ namespace file_manager
     {
         static void Main(string[] args)
         {
-            //BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information.
+            //https://stackoverflow.com/questions/70936141/azure-function-error-binaryformatter-serialization-and-deserialization-are-dis
             AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
             string path = args[0];
 

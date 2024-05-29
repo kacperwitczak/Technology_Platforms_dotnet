@@ -26,7 +26,7 @@ namespace LINQ_XML_XPATH_XHTML
                 new Car("S8", new Engine(4.0, 513, "TFSI"), 2012)
             };
 
-
+            //query1
             var cars_1 = myCars.Where(c => c.model == "A6").Select(c => new
             {
                 engineType = c.motor.model == "TDI" ? "diesel" : "petrol",
@@ -35,9 +35,10 @@ namespace LINQ_XML_XPATH_XHTML
 
             foreach (var car in cars_1)
             {
-                Console.WriteLine("engine: " + car.engineType + "hppl: " + car.hppl);
+                Console.WriteLine("engine: " + car.engineType + " hppl: " + car.hppl);
             }
 
+            //query2
             var grouped_cars = cars_1.GroupBy( c => c.engineType).Select( g => new
             {
                 engineType = g.Key,

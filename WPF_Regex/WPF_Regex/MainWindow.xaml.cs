@@ -18,9 +18,6 @@ using Path = System.IO.Path;
 
 namespace WPF_Regex
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -47,11 +44,9 @@ namespace WPF_Regex
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                statusBarTextBlock.Text = "Opening...";
                 var directory = inputDialog.SelectedPath;
                 root_path = directory;
                 DisplayTreeView(directory);
-                statusBarTextBlock.Text = "Ready";
             }
         }
 

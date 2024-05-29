@@ -18,7 +18,7 @@ namespace WPF_Regex
                 this.DialogResult = false;
             } else if (!IsDirectorySelected && !IsFileSelected)
             {
-                System.Windows.MessageBox.Show("Fie type can't be empty!");
+                System.Windows.MessageBox.Show("File type can't be empty!");
                 this.DialogResult = false;
             } else
             {

@@ -1,0 +1,38 @@
+﻿<Window x:Class="WPF_Lab4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Lab4"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+
+        <TextBox x:Name="SearchTextBox" Grid.Row="0" Margin="10" TextChanged="SearchTextBox_TextChanged" />
+
+        <DataGrid x:Name="CarDataGrid" Grid.Row="1" Margin="10" CanUserSortColumns="True" AutoGenerateColumns="False" ItemsSource="{Binding}" CanUserAddRows="True" CanUserDeleteRows="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Model" Binding="{Binding Model}" CanUserSort="True"/>
+                <DataGridTextColumn Header="Year" Binding="{Binding Year}" CanUserSort="True"/>
+                <DataGridTextColumn Header="Engine Type" Binding="{Binding Motor.Model}" CanUserSort="True"/>
+                <DataGridTextColumn Header="Displacement" Binding="{Binding Motor.Displacement}" CanUserSort="True"/>
+                <DataGridTextColumn Header="HorsePower" Binding="{Binding Motor.HorsePower}" CanUserSort="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
+            <Button Content="Query" Click="QueryExpression_Click" Margin="10"/>
+            <Button Content="Linq" Click="LinqQuery_Click" Margin="10"/>
+            <Button Content="Delegate" Click="DelegateQuery_Click" Margin="10"/>
+        </StackPanel>
+
+        <TextBox x:Name="OutputTextBox" Grid.Row="3" Margin="10" IsReadOnly="True" VerticalScrollBarVisibility="Auto" />
+    </Grid>
+</Window>
